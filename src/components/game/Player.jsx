@@ -272,7 +272,7 @@ function Player() {
       const walkCycle = Math.sin(animationTime)
       const walkCycle2 = Math.sin(animationTime + Math.PI) // Opposite phase
 
-      // Arm swing
+      // Arm swing - upper
       if (leftArmUpperRef.current) {
         leftArmUpperRef.current.rotation.x = walkCycle * 0.5
       }
@@ -280,12 +280,28 @@ function Player() {
         rightArmUpperRef.current.rotation.x = walkCycle2 * 0.5
       }
 
-      // Leg swing
+      // Arm swing - lower (slight bend)
+      if (leftArmLowerRef.current) {
+        leftArmLowerRef.current.rotation.x = walkCycle * 0.3
+      }
+      if (rightArmLowerRef.current) {
+        rightArmLowerRef.current.rotation.x = walkCycle2 * 0.3
+      }
+
+      // Leg swing - upper
       if (leftLegUpperRef.current) {
         leftLegUpperRef.current.rotation.x = walkCycle2 * 0.4
       }
       if (rightLegUpperRef.current) {
         rightLegUpperRef.current.rotation.x = walkCycle * 0.4
+      }
+
+      // Leg swing - lower (knee bend when moving forward)
+      if (leftLegLowerRef.current) {
+        leftLegLowerRef.current.rotation.x = Math.max(0, walkCycle2 * 0.5)
+      }
+      if (rightLegLowerRef.current) {
+        rightLegLowerRef.current.rotation.x = Math.max(0, walkCycle * 0.5)
       }
 
       // Slight body bob
@@ -296,7 +312,7 @@ function Player() {
 
     // Jumping animation
     if (!isGrounded) {
-      // Arms up
+      // Arms up - upper
       if (leftArmUpperRef.current) {
         leftArmUpperRef.current.rotation.x = -1.0
       }
@@ -304,12 +320,28 @@ function Player() {
         rightArmUpperRef.current.rotation.x = -1.0
       }
 
-      // Legs slightly tucked
+      // Arms up - lower (bend elbows)
+      if (leftArmLowerRef.current) {
+        leftArmLowerRef.current.rotation.x = -0.5
+      }
+      if (rightArmLowerRef.current) {
+        rightArmLowerRef.current.rotation.x = -0.5
+      }
+
+      // Legs tucked - upper
       if (leftLegUpperRef.current) {
         leftLegUpperRef.current.rotation.x = 0.3
       }
       if (rightLegUpperRef.current) {
         rightLegUpperRef.current.rotation.x = 0.3
+      }
+
+      // Legs tucked - lower (bend knees more)
+      if (leftLegLowerRef.current) {
+        leftLegLowerRef.current.rotation.x = 0.8
+      }
+      if (rightLegLowerRef.current) {
+        rightLegLowerRef.current.rotation.x = 0.8
       }
 
       // Lean forward slightly
@@ -326,7 +358,7 @@ function Player() {
         bodyRef.current.position.y = 1.15
       }
 
-      // Arms back for forward dash, forward for backstep
+      // Arms - upper (back for forward dash, forward for backstep)
       if (leftArmUpperRef.current) {
         leftArmUpperRef.current.rotation.x = isBackstep ? -0.5 : 0.8
       }
@@ -334,18 +366,34 @@ function Player() {
         rightArmUpperRef.current.rotation.x = isBackstep ? -0.5 : 0.8
       }
 
-      // Legs extended
+      // Arms - lower (extend for speed)
+      if (leftArmLowerRef.current) {
+        leftArmLowerRef.current.rotation.x = isBackstep ? -0.3 : 0.4
+      }
+      if (rightArmLowerRef.current) {
+        rightArmLowerRef.current.rotation.x = isBackstep ? -0.3 : 0.4
+      }
+
+      // Legs - upper (extended)
       if (leftLegUpperRef.current) {
         leftLegUpperRef.current.rotation.x = isBackstep ? 0.3 : -0.2
       }
       if (rightLegUpperRef.current) {
         rightLegUpperRef.current.rotation.x = isBackstep ? 0.3 : -0.2
       }
+
+      // Legs - lower (straight for power)
+      if (leftLegLowerRef.current) {
+        leftLegLowerRef.current.rotation.x = isBackstep ? 0.2 : 0.1
+      }
+      if (rightLegLowerRef.current) {
+        rightLegLowerRef.current.rotation.x = isBackstep ? 0.2 : 0.1
+      }
     }
 
     // Blocking animation
     if (isBlocking) {
-      // Arms up in defensive stance
+      // Arms - upper (raised in defensive stance)
       if (leftArmUpperRef.current) {
         leftArmUpperRef.current.rotation.x = -1.5
         leftArmUpperRef.current.rotation.z = 0.3
@@ -353,6 +401,24 @@ function Player() {
       if (rightArmUpperRef.current) {
         rightArmUpperRef.current.rotation.x = -1.5
         rightArmUpperRef.current.rotation.z = -0.3
+      }
+
+      // Arms - lower (bent to support shield)
+      if (leftArmLowerRef.current) {
+        leftArmLowerRef.current.rotation.x = -0.8
+        leftArmLowerRef.current.rotation.z = 0.2
+      }
+      if (rightArmLowerRef.current) {
+        rightArmLowerRef.current.rotation.x = -0.8
+        rightArmLowerRef.current.rotation.z = -0.2
+      }
+
+      // Legs - stable stance
+      if (leftLegLowerRef.current) {
+        leftLegLowerRef.current.rotation.x = 0.2
+      }
+      if (rightLegLowerRef.current) {
+        rightLegLowerRef.current.rotation.x = 0.2
       }
 
       // Lean back slightly
@@ -363,7 +429,7 @@ function Player() {
 
     // Reset to idle pose when not doing anything
     if (!moving && !isDashing && !isBlocking && isGrounded) {
-      // Smoothly return to neutral positions
+      // Smoothly return to neutral positions - arms
       if (leftArmUpperRef.current) {
         leftArmUpperRef.current.rotation.x *= 0.9
         leftArmUpperRef.current.rotation.z *= 0.9
@@ -372,12 +438,30 @@ function Player() {
         rightArmUpperRef.current.rotation.x *= 0.9
         rightArmUpperRef.current.rotation.z *= 0.9
       }
+      if (leftArmLowerRef.current) {
+        leftArmLowerRef.current.rotation.x *= 0.9
+        leftArmLowerRef.current.rotation.z *= 0.9
+      }
+      if (rightArmLowerRef.current) {
+        rightArmLowerRef.current.rotation.x *= 0.9
+        rightArmLowerRef.current.rotation.z *= 0.9
+      }
+
+      // Smoothly return to neutral positions - legs
       if (leftLegUpperRef.current) {
         leftLegUpperRef.current.rotation.x *= 0.9
       }
       if (rightLegUpperRef.current) {
         rightLegUpperRef.current.rotation.x *= 0.9
       }
+      if (leftLegLowerRef.current) {
+        leftLegLowerRef.current.rotation.x *= 0.9
+      }
+      if (rightLegLowerRef.current) {
+        rightLegLowerRef.current.rotation.x *= 0.9
+      }
+
+      // Body reset
       if (bodyRef.current) {
         bodyRef.current.rotation.x *= 0.9
         bodyRef.current.position.y = bodyRef.current.position.y * 0.9 + 1.2 * 0.1
