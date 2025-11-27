@@ -575,77 +575,93 @@ function Player() {
         <meshStandardMaterial color="#00ffff" emissive="#00ffff" emissiveIntensity={0.5} />
       </mesh>
 
-      {/* Left Arm - Upper */}
-      <mesh ref={leftArmUpperRef} position={[-0.55, 1.5, 0]} castShadow>
-        <cylinderGeometry args={[0.1, 0.1, 0.6, 6]} />
-        <meshStandardMaterial {...accentMaterial} />
-      </mesh>
+      {/* Left Arm - Upper with hierarchy */}
+      <group ref={leftArmUpperRef} position={[-0.55, 1.5, 0]}>
+        <mesh position={[0, 0, 0]} castShadow>
+          <cylinderGeometry args={[0.1, 0.1, 0.6, 6]} />
+          <meshStandardMaterial {...accentMaterial} />
+        </mesh>
 
-      {/* Left Arm - Lower */}
-      <mesh ref={leftArmLowerRef} position={[-0.55, 0.8, 0]} castShadow>
-        <cylinderGeometry args={[0.09, 0.09, 0.6, 6]} />
-        <meshStandardMaterial {...robotMaterial} />
-      </mesh>
+        {/* Left Arm - Lower (child of upper) */}
+        <group ref={leftArmLowerRef} position={[0, -0.5, 0]}>
+          <mesh position={[0, -0.15, 0]} castShadow>
+            <cylinderGeometry args={[0.09, 0.09, 0.6, 6]} />
+            <meshStandardMaterial {...robotMaterial} />
+          </mesh>
 
-      {/* Left Hand */}
-      <mesh position={[-0.55, 0.4, 0]} castShadow>
-        <boxGeometry args={[0.15, 0.2, 0.15]} />
-        <meshStandardMaterial {...accentMaterial} />
-      </mesh>
+          {/* Left Hand (child of lower arm) */}
+          <mesh position={[0, -0.5, 0]} castShadow>
+            <boxGeometry args={[0.15, 0.2, 0.15]} />
+            <meshStandardMaterial {...accentMaterial} />
+          </mesh>
+        </group>
+      </group>
 
-      {/* Right Arm - Upper */}
-      <mesh ref={rightArmUpperRef} position={[0.55, 1.5, 0]} castShadow>
-        <cylinderGeometry args={[0.1, 0.1, 0.6, 6]} />
-        <meshStandardMaterial {...accentMaterial} />
-      </mesh>
+      {/* Right Arm - Upper with hierarchy */}
+      <group ref={rightArmUpperRef} position={[0.55, 1.5, 0]}>
+        <mesh position={[0, 0, 0]} castShadow>
+          <cylinderGeometry args={[0.1, 0.1, 0.6, 6]} />
+          <meshStandardMaterial {...accentMaterial} />
+        </mesh>
 
-      {/* Right Arm - Lower */}
-      <mesh ref={rightArmLowerRef} position={[0.55, 0.8, 0]} castShadow>
-        <cylinderGeometry args={[0.09, 0.09, 0.6, 6]} />
-        <meshStandardMaterial {...robotMaterial} />
-      </mesh>
+        {/* Right Arm - Lower (child of upper) */}
+        <group ref={rightArmLowerRef} position={[0, -0.5, 0]}>
+          <mesh position={[0, -0.15, 0]} castShadow>
+            <cylinderGeometry args={[0.09, 0.09, 0.6, 6]} />
+            <meshStandardMaterial {...robotMaterial} />
+          </mesh>
 
-      {/* Right Hand */}
-      <mesh position={[0.55, 0.4, 0]} castShadow>
-        <boxGeometry args={[0.15, 0.2, 0.15]} />
-        <meshStandardMaterial {...accentMaterial} />
-      </mesh>
+          {/* Right Hand (child of lower arm) */}
+          <mesh position={[0, -0.5, 0]} castShadow>
+            <boxGeometry args={[0.15, 0.2, 0.15]} />
+            <meshStandardMaterial {...accentMaterial} />
+          </mesh>
+        </group>
+      </group>
 
-      {/* Left Leg - Upper */}
-      <mesh ref={leftLegUpperRef} position={[-0.25, 0.5, 0]} castShadow>
-        <cylinderGeometry args={[0.12, 0.12, 0.7, 6]} />
-        <meshStandardMaterial {...robotMaterial} />
-      </mesh>
+      {/* Left Leg - Upper with hierarchy */}
+      <group ref={leftLegUpperRef} position={[-0.25, 0.5, 0]}>
+        <mesh position={[0, 0, 0]} castShadow>
+          <cylinderGeometry args={[0.12, 0.12, 0.7, 6]} />
+          <meshStandardMaterial {...robotMaterial} />
+        </mesh>
 
-      {/* Left Leg - Lower */}
-      <mesh ref={leftLegLowerRef} position={[-0.25, -0.15, 0]} castShadow>
-        <cylinderGeometry args={[0.1, 0.1, 0.5, 6]} />
-        <meshStandardMaterial {...accentMaterial} />
-      </mesh>
+        {/* Left Leg - Lower (child of upper) */}
+        <group ref={leftLegLowerRef} position={[0, -0.5, 0]}>
+          <mesh position={[0, -0.15, 0]} castShadow>
+            <cylinderGeometry args={[0.1, 0.1, 0.5, 6]} />
+            <meshStandardMaterial {...accentMaterial} />
+          </mesh>
 
-      {/* Left Foot */}
-      <mesh position={[-0.25, -0.5, 0.1]} castShadow>
-        <boxGeometry args={[0.2, 0.1, 0.35]} />
-        <meshStandardMaterial {...robotMaterial} />
-      </mesh>
+          {/* Left Foot (child of lower leg) */}
+          <mesh position={[0, -0.35, 0.1]} castShadow>
+            <boxGeometry args={[0.2, 0.1, 0.35]} />
+            <meshStandardMaterial {...robotMaterial} />
+          </mesh>
+        </group>
+      </group>
 
-      {/* Right Leg - Upper */}
-      <mesh ref={rightLegUpperRef} position={[0.25, 0.5, 0]} castShadow>
-        <cylinderGeometry args={[0.12, 0.12, 0.7, 6]} />
-        <meshStandardMaterial {...robotMaterial} />
-      </mesh>
+      {/* Right Leg - Upper with hierarchy */}
+      <group ref={rightLegUpperRef} position={[0.25, 0.5, 0]}>
+        <mesh position={[0, 0, 0]} castShadow>
+          <cylinderGeometry args={[0.12, 0.12, 0.7, 6]} />
+          <meshStandardMaterial {...robotMaterial} />
+        </mesh>
 
-      {/* Right Leg - Lower */}
-      <mesh ref={rightLegLowerRef} position={[0.25, -0.15, 0]} castShadow>
-        <cylinderGeometry args={[0.1, 0.1, 0.5, 6]} />
-        <meshStandardMaterial {...accentMaterial} />
-      </mesh>
+        {/* Right Leg - Lower (child of upper) */}
+        <group ref={rightLegLowerRef} position={[0, -0.5, 0]}>
+          <mesh position={[0, -0.15, 0]} castShadow>
+            <cylinderGeometry args={[0.1, 0.1, 0.5, 6]} />
+            <meshStandardMaterial {...accentMaterial} />
+          </mesh>
 
-      {/* Right Foot */}
-      <mesh position={[0.25, -0.5, 0.1]} castShadow>
-        <boxGeometry args={[0.2, 0.1, 0.35]} />
-        <meshStandardMaterial {...robotMaterial} />
-      </mesh>
+          {/* Right Foot (child of lower leg) */}
+          <mesh position={[0, -0.35, 0.1]} castShadow>
+            <boxGeometry args={[0.2, 0.1, 0.35]} />
+            <meshStandardMaterial {...robotMaterial} />
+          </mesh>
+        </group>
+      </group>
 
       {/* Core Light (chest indicator) */}
       <mesh position={[0, 1.3, 0.31]} castShadow>
