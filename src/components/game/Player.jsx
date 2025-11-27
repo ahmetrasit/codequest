@@ -110,29 +110,22 @@ function Player() {
 
     // Handle dash input
     if (input.dash && dashCooldown === 0 && !isDashing) {
-      // Start dash
-      // Calculate dash direction based on current movement or facing direction
-      let dirX = 0
-      let dirZ = 0
+      // Start dash - always dash in facing direction
+      // Can dash forward or backward based on W/S
+      let dashMultiplier = 1 // Default: dash forward
 
-      if (input.forward) dirZ += 1
-      if (input.backward) dirZ -= 1
-      if (input.left) dirX -= 1
-      if (input.right) dirX += 1
-
-      // If no movement input, dash in facing direction
-      if (dirX === 0 && dirZ === 0) {
-        const currentRotation = groupRef.current?.rotation.y || 0
-        dirX = Math.sin(currentRotation)
-        dirZ = Math.cos(currentRotation)
+      if (input.backward) {
+        dashMultiplier = -1 // Dash backward if holding S
       }
 
-      const magnitude = Math.sqrt(dirX * dirX + dirZ * dirZ)
-      if (magnitude > 0) {
-        setDashDirection({ x: dirX / magnitude, z: dirZ / magnitude })
-        setDashTimer(DASH_DURATION)
-        updatePlayerStats({ isDashing: true })
-      }
+      // Use current facing rotation for dash direction
+      const facingRotation = currentRotation
+      const dirX = Math.sin(facingRotation) * dashMultiplier
+      const dirZ = Math.cos(facingRotation) * dashMultiplier
+
+      setDashDirection({ x: dirX, z: dirZ })
+      setDashTimer(DASH_DURATION)
+      updatePlayerStats({ isDashing: true })
     }
 
     // Handle dash movement
