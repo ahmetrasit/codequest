@@ -52,32 +52,33 @@ function Player() {
     // Get current input state
     const input = inputSystemRef.current.getInputState()
 
-    // Calculate movement delta based on input
-    let moveX = 0
-    let moveZ = 0
+    // Calculate movement direction based on input
+    let dirX = 0
+    let dirZ = 0
 
-    if (input.forward) moveZ -= 1
-    if (input.backward) moveZ += 1
-    if (input.left) moveX -= 1
-    if (input.right) moveX += 1
+    if (input.forward) dirZ -= 1
+    if (input.backward) dirZ += 1
+    if (input.left) dirX -= 1
+    if (input.right) dirX += 1
 
     // Normalize diagonal movement to prevent faster diagonal speed
-    const magnitude = Math.sqrt(moveX * moveX + moveZ * moveZ)
+    const magnitude = Math.sqrt(dirX * dirX + dirZ * dirZ)
     if (magnitude > 0) {
-      moveX = (moveX / magnitude) * MOVEMENT_SPEED * delta
-      moveZ = (moveZ / magnitude) * MOVEMENT_SPEED * delta
+      // Rotate player to face movement direction (before normalizing)
+      if (groupRef.current) {
+        const targetRotation = Math.atan2(dirX, dirZ)
+        groupRef.current.rotation.y = targetRotation
+      }
+
+      // Calculate movement delta
+      const moveX = (dirX / magnitude) * MOVEMENT_SPEED * delta
+      const moveZ = (dirZ / magnitude) * MOVEMENT_SPEED * delta
 
       // Update player position in store
       updatePlayerPosition({
         x: playerPosition.x + moveX,
         z: playerPosition.z + moveZ
       })
-
-      // Rotate player to face movement direction
-      if (groupRef.current) {
-        const targetRotation = Math.atan2(moveX, moveZ)
-        groupRef.current.rotation.y = targetRotation
-      }
     }
 
     // Update visual position from store
