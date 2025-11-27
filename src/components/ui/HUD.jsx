@@ -11,9 +11,9 @@ function CooldownIndicator({ cooldown, maxCooldown, label, isActive, keyLabel })
 
   return (
     <div className="flex flex-col items-center">
-      <div className="relative w-16 h-16">
+      <div className="relative w-12 h-12 sm:w-16 sm:h-16">
         {/* Background circle */}
-        <svg className="w-16 h-16 transform -rotate-90">
+        <svg className="w-full h-full transform -rotate-90" viewBox="0 0 64 64">
           <circle
             cx="32"
             cy="32"
@@ -41,19 +41,19 @@ function CooldownIndicator({ cooldown, maxCooldown, label, isActive, keyLabel })
         </svg>
         {/* Center text */}
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className={`text-xs font-bold ${isReady ? 'text-green-400' : 'text-gray-400'}`}>
+          <span className={`text-[0.6rem] sm:text-xs font-bold ${isReady ? 'text-green-400' : 'text-gray-400'}`}>
             {keyLabel}
           </span>
         </div>
         {/* Active indicator */}
         {isActive && (
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-14 h-14 bg-yellow-400/30 rounded-full animate-pulse" />
+            <div className="w-10 h-10 sm:w-14 sm:h-14 bg-yellow-400/30 rounded-full animate-pulse" />
           </div>
         )}
       </div>
-      <div className="text-xs text-gray-300 mt-1">{label}</div>
-      <div className={`text-xs ${isReady ? 'text-green-400' : 'text-orange-400'}`}>
+      <div className="text-[0.6rem] sm:text-xs text-gray-300 mt-1">{label}</div>
+      <div className={`text-[0.6rem] sm:text-xs ${isReady ? 'text-green-400' : 'text-orange-400'}`}>
         {isReady ? 'READY' : `${Math.ceil(cooldown / 60)}s`}
       </div>
     </div>
@@ -70,9 +70,9 @@ function HUD() {
 
   return (
     <div className="fixed inset-0 pointer-events-none">
-      <div className="max-w-7xl mx-auto h-full p-4 flex flex-col">
+      <div className="max-w-7xl mx-auto h-full p-2 sm:p-4 flex flex-col">
         {/* Top Left - Player Stats */}
-        <div className="bg-game-primary/80 backdrop-blur-sm rounded-lg p-4 max-w-sm">
+        <div className="bg-game-primary/80 backdrop-blur-sm rounded-lg p-2 sm:p-4 max-w-xs sm:max-w-sm text-xs sm:text-sm">
           <div className="text-sm text-gray-300 mb-3">
             Level {player.level} | Zone: {world.currentZone}
           </div>
@@ -160,9 +160,9 @@ function HUD() {
 
         {/* Bottom Center - Ability Cooldowns */}
         <div className="flex-1" />
-        <div className="flex justify-center mb-4">
-          <div className="bg-game-primary/80 backdrop-blur-sm rounded-lg p-4">
-            <div className="flex gap-8">
+        <div className="flex justify-center mb-2 sm:mb-4">
+          <div className="bg-game-primary/80 backdrop-blur-sm rounded-lg p-2 sm:p-4">
+            <div className="flex gap-4 sm:gap-8">
               <CooldownIndicator
                 cooldown={player.dashCooldown}
                 maxCooldown={player.dashCooldownMax}

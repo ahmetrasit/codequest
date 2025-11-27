@@ -120,12 +120,6 @@ function Player() {
       setIsParryWindow(false)
     }
 
-    // Handle jump input
-    if (input.jump && isGrounded) {
-      setVerticalVelocity(JUMP_VELOCITY)
-      setIsGrounded(false)
-    }
-
     // Apply gravity and vertical movement
     let newY = playerPosition.y + verticalVelocity * delta
     let newVelocity = verticalVelocity - GRAVITY * delta
@@ -134,7 +128,19 @@ function Player() {
     if (newY <= GROUND_Y) {
       newY = GROUND_Y
       newVelocity = 0
-      setIsGrounded(true)
+      if (!isGrounded) {
+        setIsGrounded(true)
+      }
+    } else {
+      if (isGrounded) {
+        setIsGrounded(false)
+      }
+    }
+
+    // Handle jump input (overrides gravity if jumping)
+    if (input.jump && isGrounded && newY <= GROUND_Y) {
+      newVelocity = JUMP_VELOCITY
+      setIsGrounded(false)
     }
 
     // Update vertical position and velocity
