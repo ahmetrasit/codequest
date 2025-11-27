@@ -23,7 +23,6 @@ function Player() {
 
   // Local state for dash timing
   const [dashTimer, setDashTimer] = useState(0)
-  const [dashDirection, setDashDirection] = useState({ x: 0, z: 1 })
 
   // Local state for block timing
   const [blockTimer, setBlockTimer] = useState(0)
@@ -34,7 +33,7 @@ function Player() {
 
   // Movement speed (units per second)
   const MOVEMENT_SPEED = 5
-  const DASH_SPEED = 25
+  const DASH_SPEED_MULTIPLIER = 3.5 // Speed multiplier during dash
   const DASH_DURATION = 0.3
   const BLOCK_DURATION = 0.5
   const PARRY_WINDOW = 0.2
@@ -110,45 +109,14 @@ function Player() {
 
     // Handle dash input
     if (input.dash && dashCooldown === 0 && !isDashing) {
-      // Start dash - always dash in facing direction
-      // Can dash forward or backward based on W/S
-      let dashMultiplier = 1 // Default: dash forward
-
-      if (input.backward) {
-        dashMultiplier = -1 // Dash backward if holding S
-      }
-
-      // Use current facing rotation for dash direction
-      const facingRotation = currentRotation
-      const dirX = Math.sin(facingRotation) * dashMultiplier
-      const dirZ = Math.cos(facingRotation) * dashMultiplier
-
-      setDashDirection({ x: dirX, z: dirZ })
+      // Start dash - activates speed boost
       setDashTimer(DASH_DURATION)
       updatePlayerStats({ isDashing: true })
     }
 
-    // Handle dash movement
+    // Handle dash timer
     if (isDashing && dashTimer > 0) {
       setDashTimer(dashTimer - delta)
-
-      // Apply dash movement
-      const moveX = dashDirection.x * DASH_SPEED * delta
-      const moveZ = dashDirection.z * DASH_SPEED * delta
-
-      updatePlayerPosition({
-        x: playerPosition.x + moveX,
-        z: playerPosition.z + moveZ
-      })
-
-      // Rotate player to face dash direction (instant for dash)
-      if (groupRef.current) {
-        const targetRotation = Math.atan2(dashDirection.x, dashDirection.z)
-        groupRef.current.rotation.y = targetRotation
-        setCurrentRotation(targetRotation) // Update rotation state
-        // Update rotation in store for camera
-        updatePlayerStats({ rotation: { ...playerRotation, y: targetRotation } })
-      }
     } else if (isDashing && dashTimer <= 0) {
       // End dash
       updatePlayerStats({
@@ -157,48 +125,47 @@ function Player() {
       })
     }
 
-    // Normal movement (when not dashing)
-    if (!isDashing) {
-      // Handle rotation with A/D keys
-      const ROTATION_SPEED = 3 // radians per second
+    // Handle rotation with A/D keys
+    const ROTATION_SPEED = 3 // radians per second
 
-      if (input.left) {
-        // Rotate left (counter-clockwise)
-        const newRotation = currentRotation + ROTATION_SPEED * delta
-        setCurrentRotation(newRotation)
-        if (groupRef.current) {
-          groupRef.current.rotation.y = newRotation
-          updatePlayerStats({ rotation: { ...playerRotation, y: newRotation } })
-        }
+    if (input.left) {
+      // Rotate left (counter-clockwise)
+      const newRotation = currentRotation + ROTATION_SPEED * delta
+      setCurrentRotation(newRotation)
+      if (groupRef.current) {
+        groupRef.current.rotation.y = newRotation
+        updatePlayerStats({ rotation: { ...playerRotation, y: newRotation } })
       }
+    }
 
-      if (input.right) {
-        // Rotate right (clockwise)
-        const newRotation = currentRotation - ROTATION_SPEED * delta
-        setCurrentRotation(newRotation)
-        if (groupRef.current) {
-          groupRef.current.rotation.y = newRotation
-          updatePlayerStats({ rotation: { ...playerRotation, y: newRotation } })
-        }
+    if (input.right) {
+      // Rotate right (clockwise)
+      const newRotation = currentRotation - ROTATION_SPEED * delta
+      setCurrentRotation(newRotation)
+      if (groupRef.current) {
+        groupRef.current.rotation.y = newRotation
+        updatePlayerStats({ rotation: { ...playerRotation, y: newRotation } })
       }
+    }
 
-      // Handle forward/backward movement with W/S keys
-      let moveAmount = 0
+    // Handle forward/backward movement with W/S keys
+    let moveAmount = 0
 
-      if (input.forward) moveAmount = 1
-      if (input.backward) moveAmount = -1
+    if (input.forward) moveAmount = 1
+    if (input.backward) moveAmount = -1
 
-      if (moveAmount !== 0) {
-        // Move in the direction the player is facing
-        const facingRotation = currentRotation
-        const moveX = Math.sin(facingRotation) * moveAmount * MOVEMENT_SPEED * delta
-        const moveZ = Math.cos(facingRotation) * moveAmount * MOVEMENT_SPEED * delta
+    if (moveAmount !== 0) {
+      // Move in the direction the player is facing
+      // Apply speed boost if dashing
+      const currentSpeed = isDashing ? MOVEMENT_SPEED * DASH_SPEED_MULTIPLIER : MOVEMENT_SPEED
+      const facingRotation = currentRotation
+      const moveX = Math.sin(facingRotation) * moveAmount * currentSpeed * delta
+      const moveZ = Math.cos(facingRotation) * moveAmount * currentSpeed * delta
 
-        updatePlayerPosition({
-          x: playerPosition.x + moveX,
-          z: playerPosition.z + moveZ
-        })
-      }
+      updatePlayerPosition({
+        x: playerPosition.x + moveX,
+        z: playerPosition.z + moveZ
+      })
     }
 
     // Update visual position from store
