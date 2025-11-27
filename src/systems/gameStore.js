@@ -22,6 +22,8 @@ const useGameStore = create(
         maxStamina: 100,
         mana: 50,
         maxMana: 50,
+        energy: 100,
+        maxEnergy: 100,
 
         // Level and progression
         level: 1,
@@ -34,7 +36,13 @@ const useGameStore = create(
         agility: 10,
         intelligence: 10,
 
-        // Combat
+        // Combat variables
+        attack: 10,
+        defense: 5,
+        speed: 5,
+        critChance: 0.05,
+
+        // Combat states
         isAttacking: false,
         isDodging: false,
         isBlocking: false,
@@ -115,6 +123,20 @@ const useGameStore = create(
         player: {
           ...state.player,
           mana: Math.max(0, state.player.mana - amount)
+        }
+      })),
+
+      useEnergy: (amount) => set((state) => ({
+        player: {
+          ...state.player,
+          energy: Math.max(0, state.player.energy - amount)
+        }
+      })),
+
+      restoreEnergy: (amount) => set((state) => ({
+        player: {
+          ...state.player,
+          energy: Math.min(state.player.maxEnergy, state.player.energy + amount)
         }
       })),
 
@@ -239,6 +261,8 @@ const useGameStore = create(
           maxStamina: 100,
           mana: 50,
           maxMana: 50,
+          energy: 100,
+          maxEnergy: 100,
           level: 1,
           experience: 0,
           experienceToNextLevel: 100,
@@ -246,6 +270,10 @@ const useGameStore = create(
           vitality: 10,
           agility: 10,
           intelligence: 10,
+          attack: 10,
+          defense: 5,
+          speed: 5,
+          critChance: 0.05,
           isAttacking: false,
           isDodging: false,
           isBlocking: false,
