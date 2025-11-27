@@ -33,6 +33,10 @@ function Player() {
   // Local state for smooth rotation
   const [currentRotation, setCurrentRotation] = useState(0)
 
+  // Local state for jumping
+  const [verticalVelocity, setVerticalVelocity] = useState(0)
+  const [isGrounded, setIsGrounded] = useState(true)
+
   // Movement speed (units per second)
   const MOVEMENT_SPEED = 5
   const DASH_SPEED = 25 // Forward dash speed
@@ -41,6 +45,11 @@ function Player() {
   const BACKSTEP_DURATION = 0.2
   const BLOCK_DURATION = 0.5
   const PARRY_WINDOW = 0.2
+
+  // Jump and gravity settings
+  const JUMP_VELOCITY = 12 // Initial upward velocity when jumping
+  const GRAVITY = 30 // Gravity acceleration (pulls player down)
+  const GROUND_Y = 0 // Ground level position
 
   // Bright blue color for robotic aesthetic
   const primaryColor = '#0066ff'
@@ -110,6 +119,29 @@ function Player() {
       })
       setIsParryWindow(false)
     }
+
+    // Handle jump input
+    if (input.jump && isGrounded) {
+      setVerticalVelocity(JUMP_VELOCITY)
+      setIsGrounded(false)
+    }
+
+    // Apply gravity and vertical movement
+    let newY = playerPosition.y + verticalVelocity * delta
+    let newVelocity = verticalVelocity - GRAVITY * delta
+
+    // Check if player has landed on ground
+    if (newY <= GROUND_Y) {
+      newY = GROUND_Y
+      newVelocity = 0
+      setIsGrounded(true)
+    }
+
+    // Update vertical position and velocity
+    if (newY !== playerPosition.y) {
+      updatePlayerPosition({ y: newY })
+    }
+    setVerticalVelocity(newVelocity)
 
     // Handle dash input
     if (input.dash && dashCooldown === 0 && !isDashing) {

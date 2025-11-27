@@ -1,7 +1,7 @@
 /**
  * Input System
  * Manages keyboard and mouse input for player controls
- * Tracks WASD keys for movement, Space for dash, right-click for block
+ * Tracks WASD keys for movement, E for dash, Space for jump, right-click for block
  */
 class InputSystem {
   constructor() {
@@ -18,6 +18,7 @@ class InputSystem {
     this.actionPressed = {
       dash: false,
       block: false,
+      jump: false,
     }
 
     // Bind event handlers to maintain proper context
@@ -43,6 +44,14 @@ class InputSystem {
    */
   handleKeyDown(event) {
     const key = event.key.toLowerCase()
+
+    // Handle spacebar separately (it's not in this.keys)
+    if (key === ' ') {
+      this.actionPressed.jump = true
+      event.preventDefault()
+      return
+    }
+
     if (key in this.keys) {
       // Only trigger action pressed once per key press
       if (!this.keys[key]) {
@@ -85,11 +94,13 @@ class InputSystem {
       right: this.keys.d,
       dash: this.actionPressed.dash,
       block: this.actionPressed.block,
+      jump: this.actionPressed.jump,
     }
 
     // Reset action pressed flags (they should only trigger once)
     this.actionPressed.dash = false
     this.actionPressed.block = false
+    this.actionPressed.jump = false
 
     return state
   }
