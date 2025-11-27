@@ -313,47 +313,55 @@ function Player() {
       }
     }
 
-    // Backward walking animation (different from forward)
+    // Backward walking animation - MOONWALK! (MJ Easter Egg)
     if (isMovingBackward && !isMovingForward && isGrounded && !isBlocking) {
       const walkCycle = Math.sin(animationTime)
       const walkCycle2 = Math.sin(animationTime + Math.PI) // Opposite phase
 
-      // Arms swing opposite to forward walk
+      // Classic MJ arm pose
       if (leftArmUpperRef.current) {
-        leftArmUpperRef.current.rotation.x = walkCycle2 * 0.3 // Reduced swing
+        // Left arm bent up at chest level with subtle sway
+        leftArmUpperRef.current.rotation.x = -0.9 + walkCycle * 0.1
+        leftArmUpperRef.current.rotation.z = 0.2
       }
       if (rightArmUpperRef.current) {
-        rightArmUpperRef.current.rotation.x = walkCycle * 0.3
+        // Right arm slightly down with minimal movement
+        rightArmUpperRef.current.rotation.x = 0.3 + walkCycle2 * 0.08
+        rightArmUpperRef.current.rotation.z = -0.1
       }
 
-      // Arm swing - lower (less movement)
+      // Lower arms bent for that iconic pose
       if (leftArmLowerRef.current) {
-        leftArmLowerRef.current.rotation.x = walkCycle2 * 0.2
+        leftArmLowerRef.current.rotation.x = -0.6
       }
       if (rightArmLowerRef.current) {
-        rightArmLowerRef.current.rotation.x = walkCycle * 0.2
+        rightArmLowerRef.current.rotation.x = -0.4
       }
 
-      // Legs move backward (reversed pattern)
+      // Smooth leg slides - straighter legs for that glide effect
       if (leftLegUpperRef.current) {
-        leftLegUpperRef.current.rotation.x = walkCycle * 0.3 // Reduced range
+        leftLegUpperRef.current.rotation.x = walkCycle * 0.2 // Reduced for smooth slide
       }
       if (rightLegUpperRef.current) {
-        rightLegUpperRef.current.rotation.x = walkCycle2 * 0.3
+        rightLegUpperRef.current.rotation.x = walkCycle2 * 0.2
       }
 
-      // Knees bend less when walking backward
+      // Minimal knee bend - keeps legs straighter for moonwalk glide
       if (leftLegLowerRef.current) {
-        leftLegLowerRef.current.rotation.x = Math.max(0, walkCycle * 0.3)
+        leftLegLowerRef.current.rotation.x = Math.max(0, walkCycle * 0.1)
       }
       if (rightLegLowerRef.current) {
-        rightLegLowerRef.current.rotation.x = Math.max(0, walkCycle2 * 0.3)
+        rightLegLowerRef.current.rotation.x = Math.max(0, walkCycle2 * 0.1)
       }
 
-      // Lean back slightly when walking backward
+      // Lean FORWARD while moving backward (classic moonwalk!)
+      // Head tilted back slightly
       if (bodyRef.current) {
-        bodyRef.current.rotation.x = -0.05
-        bodyRef.current.position.y = 1.2 + Math.abs(walkCycle) * 0.03
+        bodyRef.current.rotation.x = 0.15 // Lean forward
+        bodyRef.current.position.y = 1.2 + Math.abs(walkCycle) * 0.01 // Minimal bob for smooth glide
+      }
+      if (headRef.current) {
+        headRef.current.rotation.x = -0.1 // Tilt head back slightly
       }
     }
 
