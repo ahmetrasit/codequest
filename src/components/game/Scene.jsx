@@ -1,7 +1,7 @@
 import React from 'react'
 import { Canvas } from '@react-three/fiber'
-import { OrbitControls } from '@react-three/drei'
 import Player from './Player'
+import CameraController from './CameraController'
 
 /**
  * Main 3D Scene Component
@@ -40,13 +40,8 @@ function Scene() {
           <meshStandardMaterial color="#ffeb3b" />
         </mesh>
 
-        {/* Orbit controls for camera movement */}
-        <OrbitControls
-          enableDamping
-          dampingFactor={0.05}
-          minDistance={3}
-          maxDistance={20}
-        />
+        {/* Third-person camera controller */}
+        <CameraController />
       </Canvas>
     </div>
   )
