@@ -1,0 +1,56 @@
+{
+  "scrap_metal": {
+    "id": "scrap_metal",
+    "name": "Scrap Metal",
+    "type": "basic",
+    "stackable": true,
+    "maxStack": 99,
+    "rarity": "common",
+    "description": "One robot's trash."
+  },
+  "copper_wire": {
+    "id": "copper_wire",
+    "name": "Copper Wire",
+    "type": "basic",
+    "stackable": true,
+    "maxStack": 99,
+    "rarity": "common",
+    "description": "The backbone of everything."
+  },
+  "data_fragment": {
+    "id": "data_fragment",
+    "name": "Data Fragment",
+    "type": "basic",
+    "stackable": true,
+    "maxStack": 99,
+    "rarity": "common",
+    "description": "0110100001101001"
+  },
+  "energy_cell": {
+    "id": "energy_cell",
+    "name": "Energy Cell",
+    "type": "basic",
+    "stackable": true,
+    "maxStack": 99,
+    "rarity": "common",
+    "description": "Juice."
+  },
+  "corrupted_code": {
+    "id": "corrupted_code",
+    "name": "Corrupted Code",
+    "type": "rare",
+    "stackable": true,
+    "maxStack": 50,
+    "rarity": "rare",
+    "description": "Glitched data. Handle with care."
+  },
+  "refined_alloy": {
+    "id": "refined_alloy",
+    "name": "Refined Alloy",
+    "type": "refined",
+    "stackable": true,
+    "maxStack": 50,
+    "rarity": "uncommon",
+    "description": "Processed and purified."
+  }
+}

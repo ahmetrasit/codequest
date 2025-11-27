@@ -12,6 +12,7 @@ class InputSystem {
       s: false, // Back
       d: false, // Right
       e: false, // E - Dash
+      i: false, // I - Inventory
     }
 
     // Track action key presses (for single-press actions)
@@ -19,6 +20,7 @@ class InputSystem {
       dash: false,
       block: false,
       jump: false,
+      inventory: false,
     }
 
     // Bind event handlers to maintain proper context
@@ -56,6 +58,7 @@ class InputSystem {
       // Only trigger action pressed once per key press
       if (!this.keys[key]) {
         if (key === 'e') this.actionPressed.dash = true
+        if (key === 'i') this.actionPressed.inventory = true
       }
       this.keys[key] = true
       event.preventDefault() // Prevent default browser behavior
@@ -95,12 +98,14 @@ class InputSystem {
       dash: this.actionPressed.dash,
       block: this.actionPressed.block,
       jump: this.actionPressed.jump,
+      inventory: this.actionPressed.inventory,
     }
 
     // Reset action pressed flags (they should only trigger once)
     this.actionPressed.dash = false
     this.actionPressed.block = false
     this.actionPressed.jump = false
+    this.actionPressed.inventory = false
 
     return state
   }

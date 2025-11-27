@@ -1,0 +1,78 @@
+{
+  "basic_visor": {
+    "id": "basic_visor",
+    "name": "Basic Visor",
+    "type": "helmet",
+    "defense": 5,
+    "stats": {},
+    "weight": 2,
+    "rarity": "common",
+    "description": "See enemy. Don't let enemy see brain."
+  },
+  "standard_chassis": {
+    "id": "standard_chassis",
+    "name": "Standard Chassis",
+    "type": "chestplate",
+    "defense": 10,
+    "stats": {},
+    "weight": 8,
+    "rarity": "common",
+    "description": "It works. That's enough."
+  },
+  "basic_cloak": {
+    "id": "basic_cloak",
+    "name": "Basic Cloak",
+    "type": "cloak",
+    "defense": 3,
+    "stats": {
+      "speed": 1
+    },
+    "weight": 1,
+    "rarity": "common",
+    "description": "Fashion is optional. Protection isn't."
+  },
+  "standard_legs": {
+    "id": "standard_legs",
+    "name": "Standard Legs",
+    "type": "leggings",
+    "defense": 7,
+    "stats": {},
+    "weight": 5,
+    "rarity": "common",
+    "description": "Left leg. Right leg. Both defended."
+  },
+  "basic_treads": {
+    "id": "basic_treads",
+    "name": "Basic Treads",
+    "type": "boots",
+    "defense": 4,
+    "stats": {
+      "speed": 1
+    },
+    "weight": 3,
+    "rarity": "common",
+    "description": "Step. Step. Step."
+  },
+  "standard_grips": {
+    "id": "standard_grips",
+    "name": "Standard Grips",
+    "type": "gloves",
+    "defense": 3,
+    "stats": {
+      "attack": 1
+    },
+    "weight": 2,
+    "rarity": "common",
+    "description": "Functional fingers."
+  },
+  "basic_plating": {
+    "id": "basic_plating",
+    "name": "Basic Plating",
+    "type": "extra_armor",
+    "defense": 5,
+    "stats": {},
+    "weight": 6,
+    "rarity": "common",
+    "description": "More armor. Less pain."
+  }
+}

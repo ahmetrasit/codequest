@@ -1,0 +1,53 @@
+{
+  "patch_kit": {
+    "id": "patch_kit",
+    "name": "Patch Kit",
+    "type": "healing",
+    "effect": {
+      "heal": 30
+    },
+    "stackable": true,
+    "maxStack": 10,
+    "rarity": "common",
+    "description": "Fixes most problems. Eventually."
+  },
+  "overclock_stim": {
+    "id": "overclock_stim",
+    "name": "Overclock Stim",
+    "type": "buff",
+    "effect": {
+      "buff": "overclocked",
+      "duration": 20,
+      "attackBoost": 5,
+      "speedBoost": 2
+    },
+    "stackable": true,
+    "maxStack": 5,
+    "rarity": "uncommon",
+    "description": "clock_speed++"
+  },
+  "antivirus_shot": {
+    "id": "antivirus_shot",
+    "name": "Antivirus Shot",
+    "type": "debuff_removal",
+    "effect": {
+      "removeAllDebuffs": true
+    },
+    "stackable": true,
+    "maxStack": 5,
+    "rarity": "uncommon",
+    "description": "Threat neutralized."
+  },
+  "energy_pack": {
+    "id": "energy_pack",
+    "name": "Energy Pack",
+    "type": "energy",
+    "effect": {
+      "restoreEnergy": 50
+    },
+    "stackable": true,
+    "maxStack": 10,
+    "rarity": "common",
+    "description": "Instant energy boost."
+  }
+}

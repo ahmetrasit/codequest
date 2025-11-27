@@ -1,0 +1,57 @@
+{
+  "syntax_sword": {
+    "id": "syntax_sword",
+    "name": "Syntax Sword",
+    "type": "melee_sword",
+    "damage": 15,
+    "speed": 1.0,
+    "instability": 10,
+    "effects": [],
+    "rarity": "common",
+    "description": "Clean syntax. Clean cuts."
+  },
+  "glitch_blade": {
+    "id": "glitch_blade",
+    "name": "Glitch Blade",
+    "type": "melee_sword",
+    "damage": 25,
+    "speed": 0.9,
+    "instability": 45,
+    "effects": [
+      {
+        "type": "phase",
+        "chance": 0.1
+      }
+    ],
+    "rarity": "rare",
+    "description": "It's not a bug, it's a feature."
+  },
+  "delete_ray": {
+    "id": "delete_ray",
+    "name": "Delete Ray",
+    "type": "ranged_ray",
+    "damage": 12,
+    "speed": 1.2,
+    "instability": 20,
+    "energyCost": 5,
+    "effects": [],
+    "rarity": "common",
+    "description": "Are you sure you want to permanently delete this enemy?"
+  },
+  "ping_daggers": {
+    "id": "ping_daggers",
+    "name": "Ping Daggers",
+    "type": "melee_fast",
+    "damage": 8,
+    "speed": 1.8,
+    "instability": 15,
+    "effects": [
+      {
+        "type": "reveal_health",
+        "chance": 1.0
+      }
+    ],
+    "rarity": "uncommon",
+    "description": "64 bytes from target: time=2ms"
+  }
+}
