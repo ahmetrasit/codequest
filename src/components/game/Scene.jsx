@@ -1,7 +1,7 @@
 import React from 'react'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
-import LowPolyObject from './LowPolyObject'
+import Player from './Player'
 
 /**
  * Main 3D Scene Component
@@ -31,8 +31,8 @@ function Scene() {
           shadow-mapSize-height={2048}
         />
 
-        {/* Low-poly test object */}
-        <LowPolyObject />
+        {/* Player Character */}
+        <Player />
 
         {/* Ground plane */}
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1, 0]} receiveShadow>
