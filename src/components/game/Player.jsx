@@ -72,6 +72,12 @@ function Player() {
         x: playerPosition.x + moveX,
         z: playerPosition.z + moveZ
       })
+
+      // Rotate player to face movement direction
+      if (groupRef.current) {
+        const targetRotation = Math.atan2(moveX, moveZ)
+        groupRef.current.rotation.y = targetRotation
+      }
     }
 
     // Update visual position from store
