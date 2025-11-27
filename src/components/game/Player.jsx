@@ -10,9 +10,9 @@ function Player() {
   const groupRef = useRef()
   const playerPosition = useGameStore((state) => state.player.position)
 
-  // Cyan color for robotic aesthetic
-  const primaryColor = '#00d9ff'
-  const accentColor = '#0088cc'
+  // Bright blue color for robotic aesthetic
+  const primaryColor = '#0066ff'
+  const accentColor = '#0044cc'
 
   // Material properties for low-poly metallic look
   const robotMaterial = {

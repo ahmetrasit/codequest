@@ -37,7 +37,7 @@ function Scene() {
         {/* Ground plane */}
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1, 0]} receiveShadow>
           <planeGeometry args={[20, 20]} />
-          <meshStandardMaterial color="#16213e" />
+          <meshStandardMaterial color="#ffeb3b" />
         </mesh>
 
         {/* Orbit controls for camera movement */}
