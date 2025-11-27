@@ -1,6 +1,7 @@
-import React, { useRef } from 'react'
+import React, { useRef, useEffect } from 'react'
 import { useFrame } from '@react-three/fiber'
 import useGameStore from '../../systems/gameStore'
+import { getInputSystem, destroyInputSystem } from '../../systems/InputSystem'
 
 /**
  * Player Character Component
@@ -8,7 +9,12 @@ import useGameStore from '../../systems/gameStore'
  */
 function Player() {
   const groupRef = useRef()
+  const inputSystemRef = useRef(null)
   const playerPosition = useGameStore((state) => state.player.position)
+  const updatePlayerPosition = useGameStore((state) => state.updatePlayerPosition)
+
+  // Movement speed (units per second)
+  const MOVEMENT_SPEED = 5
 
   // Bright blue color for robotic aesthetic
   const primaryColor = '#0066ff'
@@ -29,8 +35,46 @@ function Player() {
     flatShading: true,
   }
 
-  // Update player position from store
-  useFrame(() => {
+  // Initialize InputSystem
+  useEffect(() => {
+    inputSystemRef.current = getInputSystem()
+
+    // Cleanup on unmount
+    return () => {
+      destroyInputSystem()
+    }
+  }, [])
+
+  // Update player position based on input and render frame
+  useFrame((state, delta) => {
+    if (!inputSystemRef.current) return
+
+    // Get current input state
+    const input = inputSystemRef.current.getInputState()
+
+    // Calculate movement delta based on input
+    let moveX = 0
+    let moveZ = 0
+
+    if (input.forward) moveZ -= 1
+    if (input.backward) moveZ += 1
+    if (input.left) moveX -= 1
+    if (input.right) moveX += 1
+
+    // Normalize diagonal movement to prevent faster diagonal speed
+    const magnitude = Math.sqrt(moveX * moveX + moveZ * moveZ)
+    if (magnitude > 0) {
+      moveX = (moveX / magnitude) * MOVEMENT_SPEED * delta
+      moveZ = (moveZ / magnitude) * MOVEMENT_SPEED * delta
+
+      // Update player position in store
+      updatePlayerPosition({
+        x: playerPosition.x + moveX,
+        z: playerPosition.z + moveZ
+      })
+    }
+
+    // Update visual position from store
     if (groupRef.current) {
       groupRef.current.position.set(
         playerPosition.x,
