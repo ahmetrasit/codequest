@@ -166,43 +166,41 @@ function Player() {
 
     // Normal movement (when not dashing)
     if (!isDashing) {
-      // Calculate movement direction based on input
-      let dirX = 0
-      let dirZ = 0
+      // Handle rotation with A/D keys
+      const ROTATION_SPEED = 3 // radians per second
 
-      if (input.forward) dirZ += 1
-      if (input.backward) dirZ -= 1
-      if (input.left) dirX -= 1
-      if (input.right) dirX += 1
-
-      // Normalize diagonal movement to prevent faster diagonal speed
-      const magnitude = Math.sqrt(dirX * dirX + dirZ * dirZ)
-      if (magnitude > 0) {
-        // Calculate target rotation
-        const targetRotation = Math.atan2(dirX, dirZ)
-
-        // Smooth rotation interpolation
-        let rotDiff = targetRotation - currentRotation
-        // Normalize angle difference to -PI to PI
-        while (rotDiff > Math.PI) rotDiff -= Math.PI * 2
-        while (rotDiff < -Math.PI) rotDiff += Math.PI * 2
-
-        // Lerp rotation (0.2 = smoothing factor, higher = faster rotation)
-        const newRotation = currentRotation + rotDiff * 0.2
+      if (input.left) {
+        // Rotate left (counter-clockwise)
+        const newRotation = currentRotation + ROTATION_SPEED * delta
         setCurrentRotation(newRotation)
-
-        // Apply rotation to player
         if (groupRef.current) {
           groupRef.current.rotation.y = newRotation
-          // Update rotation in store for camera
           updatePlayerStats({ rotation: { ...playerRotation, y: newRotation } })
         }
+      }
 
-        // Calculate movement delta
-        const moveX = (dirX / magnitude) * MOVEMENT_SPEED * delta
-        const moveZ = (dirZ / magnitude) * MOVEMENT_SPEED * delta
+      if (input.right) {
+        // Rotate right (clockwise)
+        const newRotation = currentRotation - ROTATION_SPEED * delta
+        setCurrentRotation(newRotation)
+        if (groupRef.current) {
+          groupRef.current.rotation.y = newRotation
+          updatePlayerStats({ rotation: { ...playerRotation, y: newRotation } })
+        }
+      }
 
-        // Update player position in store
+      // Handle forward/backward movement with W/S keys
+      let moveAmount = 0
+
+      if (input.forward) moveAmount = 1
+      if (input.backward) moveAmount = -1
+
+      if (moveAmount !== 0) {
+        // Move in the direction the player is facing
+        const facingRotation = currentRotation
+        const moveX = Math.sin(facingRotation) * moveAmount * MOVEMENT_SPEED * delta
+        const moveZ = Math.cos(facingRotation) * moveAmount * MOVEMENT_SPEED * delta
+
         updatePlayerPosition({
           x: playerPosition.x + moveX,
           z: playerPosition.z + moveZ
