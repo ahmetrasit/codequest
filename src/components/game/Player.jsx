@@ -10,6 +10,18 @@ import { getInputSystem, destroyInputSystem } from '../../systems/InputSystem'
 function Player() {
   const groupRef = useRef()
   const inputSystemRef = useRef(null)
+
+  // Refs for body parts for animation
+  const leftArmUpperRef = useRef()
+  const leftArmLowerRef = useRef()
+  const rightArmUpperRef = useRef()
+  const rightArmLowerRef = useRef()
+  const leftLegUpperRef = useRef()
+  const leftLegLowerRef = useRef()
+  const rightLegUpperRef = useRef()
+  const rightLegLowerRef = useRef()
+  const bodyRef = useRef()
+  const headRef = useRef()
   const playerPosition = useGameStore((state) => state.player.position)
   const playerRotation = useGameStore((state) => state.player.rotation)
   const isDashing = useGameStore((state) => state.player.isDashing)
@@ -36,6 +48,10 @@ function Player() {
   // Local state for jumping
   const [verticalVelocity, setVerticalVelocity] = useState(0)
   const [isGrounded, setIsGrounded] = useState(true)
+
+  // Animation state
+  const [animationTime, setAnimationTime] = useState(0)
+  const [isMoving, setIsMoving] = useState(false)
 
   // Movement speed (units per second)
   const MOVEMENT_SPEED = 5
@@ -239,6 +255,140 @@ function Player() {
         playerPosition.z
       )
     }
+
+    // ==================== ANIMATIONS ====================
+
+    // Check if player is moving
+    const moving = (input.forward || input.backward) && !isDashing
+    setIsMoving(moving)
+
+    // Update animation time
+    if (moving) {
+      setAnimationTime(animationTime + delta * 8) // Animation speed multiplier
+    }
+
+    // Walking animation
+    if (moving && isGrounded && !isBlocking) {
+      const walkCycle = Math.sin(animationTime)
+      const walkCycle2 = Math.sin(animationTime + Math.PI) // Opposite phase
+
+      // Arm swing
+      if (leftArmUpperRef.current) {
+        leftArmUpperRef.current.rotation.x = walkCycle * 0.5
+      }
+      if (rightArmUpperRef.current) {
+        rightArmUpperRef.current.rotation.x = walkCycle2 * 0.5
+      }
+
+      // Leg swing
+      if (leftLegUpperRef.current) {
+        leftLegUpperRef.current.rotation.x = walkCycle2 * 0.4
+      }
+      if (rightLegUpperRef.current) {
+        rightLegUpperRef.current.rotation.x = walkCycle * 0.4
+      }
+
+      // Slight body bob
+      if (bodyRef.current) {
+        bodyRef.current.position.y = 1.2 + Math.abs(walkCycle) * 0.05
+      }
+    }
+
+    // Jumping animation
+    if (!isGrounded) {
+      // Arms up
+      if (leftArmUpperRef.current) {
+        leftArmUpperRef.current.rotation.x = -1.0
+      }
+      if (rightArmUpperRef.current) {
+        rightArmUpperRef.current.rotation.x = -1.0
+      }
+
+      // Legs slightly tucked
+      if (leftLegUpperRef.current) {
+        leftLegUpperRef.current.rotation.x = 0.3
+      }
+      if (rightLegUpperRef.current) {
+        rightLegUpperRef.current.rotation.x = 0.3
+      }
+
+      // Lean forward slightly
+      if (bodyRef.current) {
+        bodyRef.current.rotation.x = 0.1
+      }
+    }
+
+    // Dashing animation
+    if (isDashing) {
+      // Lean forward aggressively
+      if (bodyRef.current) {
+        bodyRef.current.rotation.x = isBackstep ? -0.3 : 0.4
+        bodyRef.current.position.y = 1.15
+      }
+
+      // Arms back for forward dash, forward for backstep
+      if (leftArmUpperRef.current) {
+        leftArmUpperRef.current.rotation.x = isBackstep ? -0.5 : 0.8
+      }
+      if (rightArmUpperRef.current) {
+        rightArmUpperRef.current.rotation.x = isBackstep ? -0.5 : 0.8
+      }
+
+      // Legs extended
+      if (leftLegUpperRef.current) {
+        leftLegUpperRef.current.rotation.x = isBackstep ? 0.3 : -0.2
+      }
+      if (rightLegUpperRef.current) {
+        rightLegUpperRef.current.rotation.x = isBackstep ? 0.3 : -0.2
+      }
+    }
+
+    // Blocking animation
+    if (isBlocking) {
+      // Arms up in defensive stance
+      if (leftArmUpperRef.current) {
+        leftArmUpperRef.current.rotation.x = -1.5
+        leftArmUpperRef.current.rotation.z = 0.3
+      }
+      if (rightArmUpperRef.current) {
+        rightArmUpperRef.current.rotation.x = -1.5
+        rightArmUpperRef.current.rotation.z = -0.3
+      }
+
+      // Lean back slightly
+      if (bodyRef.current) {
+        bodyRef.current.rotation.x = -0.1
+      }
+    }
+
+    // Reset to idle pose when not doing anything
+    if (!moving && !isDashing && !isBlocking && isGrounded) {
+      // Smoothly return to neutral positions
+      if (leftArmUpperRef.current) {
+        leftArmUpperRef.current.rotation.x *= 0.9
+        leftArmUpperRef.current.rotation.z *= 0.9
+      }
+      if (rightArmUpperRef.current) {
+        rightArmUpperRef.current.rotation.x *= 0.9
+        rightArmUpperRef.current.rotation.z *= 0.9
+      }
+      if (leftLegUpperRef.current) {
+        leftLegUpperRef.current.rotation.x *= 0.9
+      }
+      if (rightLegUpperRef.current) {
+        rightLegUpperRef.current.rotation.x *= 0.9
+      }
+      if (bodyRef.current) {
+        bodyRef.current.rotation.x *= 0.9
+        bodyRef.current.position.y = bodyRef.current.position.y * 0.9 + 1.2 * 0.1
+      }
+
+      // Idle breathing animation
+      const breathCycle = Math.sin(Date.now() * 0.001) * 0.02
+      if (bodyRef.current) {
+        bodyRef.current.position.y = 1.2 + breathCycle
+      }
+    }
   })
 
   return (
@@ -320,13 +470,13 @@ function Player() {
       )}
 
       {/* Main Body (Chassis) */}
-      <mesh position={[0, 1.2, 0]} castShadow>
+      <mesh ref={bodyRef} position={[0, 1.2, 0]} castShadow>
         <boxGeometry args={[0.8, 1, 0.6]} />
         <meshStandardMaterial {...robotMaterial} />
       </mesh>
 
       {/* Head */}
-      <mesh position={[0, 2, 0]} castShadow>
+      <mesh ref={headRef} position={[0, 2, 0]} castShadow>
         <boxGeometry args={[0.5, 0.5, 0.5]} />
         <meshStandardMaterial {...robotMaterial} />
       </mesh>
@@ -342,13 +492,13 @@ function Player() {
       </mesh>
 
       {/* Left Arm - Upper */}
-      <mesh position={[-0.55, 1.5, 0]} castShadow>
+      <mesh ref={leftArmUpperRef} position={[-0.55, 1.5, 0]} castShadow>
         <cylinderGeometry args={[0.1, 0.1, 0.6, 6]} />
         <meshStandardMaterial {...accentMaterial} />
       </mesh>
 
       {/* Left Arm - Lower */}
-      <mesh position={[-0.55, 0.8, 0]} castShadow>
+      <mesh ref={leftArmLowerRef} position={[-0.55, 0.8, 0]} castShadow>
         <cylinderGeometry args={[0.09, 0.09, 0.6, 6]} />
         <meshStandardMaterial {...robotMaterial} />
       </mesh>
@@ -360,13 +510,13 @@ function Player() {
       </mesh>
 
       {/* Right Arm - Upper */}
-      <mesh position={[0.55, 1.5, 0]} castShadow>
+      <mesh ref={rightArmUpperRef} position={[0.55, 1.5, 0]} castShadow>
         <cylinderGeometry args={[0.1, 0.1, 0.6, 6]} />
         <meshStandardMaterial {...accentMaterial} />
       </mesh>
 
       {/* Right Arm - Lower */}
-      <mesh position={[0.55, 0.8, 0]} castShadow>
+      <mesh ref={rightArmLowerRef} position={[0.55, 0.8, 0]} castShadow>
         <cylinderGeometry args={[0.09, 0.09, 0.6, 6]} />
         <meshStandardMaterial {...robotMaterial} />
       </mesh>
@@ -378,13 +528,13 @@ function Player() {
       </mesh>
 
       {/* Left Leg - Upper */}
-      <mesh position={[-0.25, 0.5, 0]} castShadow>
+      <mesh ref={leftLegUpperRef} position={[-0.25, 0.5, 0]} castShadow>
         <cylinderGeometry args={[0.12, 0.12, 0.7, 6]} />
         <meshStandardMaterial {...robotMaterial} />
       </mesh>
 
       {/* Left Leg - Lower */}
-      <mesh position={[-0.25, -0.15, 0]} castShadow>
+      <mesh ref={leftLegLowerRef} position={[-0.25, -0.15, 0]} castShadow>
         <cylinderGeometry args={[0.1, 0.1, 0.5, 6]} />
         <meshStandardMaterial {...accentMaterial} />
       </mesh>
@@ -396,13 +546,13 @@ function Player() {
       </mesh>
 
       {/* Right Leg - Upper */}
-      <mesh position={[0.25, 0.5, 0]} castShadow>
+      <mesh ref={rightLegUpperRef} position={[0.25, 0.5, 0]} castShadow>
         <cylinderGeometry args={[0.12, 0.12, 0.7, 6]} />
         <meshStandardMaterial {...robotMaterial} />
       </mesh>
 
       {/* Right Leg - Lower */}
-      <mesh position={[0.25, -0.15, 0]} castShadow>
+      <mesh ref={rightLegLowerRef} position={[0.25, -0.15, 0]} castShadow>
         <cylinderGeometry args={[0.1, 0.1, 0.5, 6]} />
         <meshStandardMaterial {...accentMaterial} />
       </mesh>
