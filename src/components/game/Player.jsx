@@ -32,6 +32,7 @@ function Player() {
   const blockCooldownMax = useGameStore((state) => state.player.blockCooldownMax)
   const updatePlayerPosition = useGameStore((state) => state.updatePlayerPosition)
   const updatePlayerStats = useGameStore((state) => state.updatePlayerStats)
+  const toggleInventory = useGameStore((state) => state.toggleInventory)
 
   // Local state for dash timing
   const [dashTimer, setDashTimer] = useState(0)
@@ -102,6 +103,11 @@ function Player() {
 
     // Get current input state
     const input = inputSystemRef.current.getInputState()
+
+    // Handle inventory toggle
+    if (input.inventory) {
+      toggleInventory()
+    }
 
     // Update dash cooldown
     if (dashCooldown > 0) {
