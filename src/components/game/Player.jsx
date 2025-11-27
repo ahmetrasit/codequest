@@ -14,6 +14,9 @@ function Player() {
   const isDashing = useGameStore((state) => state.player.isDashing)
   const dashCooldown = useGameStore((state) => state.player.dashCooldown)
   const dashCooldownMax = useGameStore((state) => state.player.dashCooldownMax)
+  const isBlocking = useGameStore((state) => state.player.isBlocking)
+  const blockCooldown = useGameStore((state) => state.player.blockCooldown)
+  const blockCooldownMax = useGameStore((state) => state.player.blockCooldownMax)
   const updatePlayerPosition = useGameStore((state) => state.updatePlayerPosition)
   const updatePlayerStats = useGameStore((state) => state.updatePlayerStats)
 
@@ -21,10 +24,16 @@ function Player() {
   const [dashTimer, setDashTimer] = useState(0)
   const [dashDirection, setDashDirection] = useState({ x: 0, z: 1 })
 
+  // Local state for block timing
+  const [blockTimer, setBlockTimer] = useState(0)
+  const [isParryWindow, setIsParryWindow] = useState(false)
+
   // Movement speed (units per second)
   const MOVEMENT_SPEED = 5
   const DASH_SPEED = 25
   const DASH_DURATION = 0.3
+  const BLOCK_DURATION = 0.5
+  const PARRY_WINDOW = 0.2
 
   // Bright blue color for robotic aesthetic
   const primaryColor = '#0066ff'
@@ -65,6 +74,34 @@ function Player() {
     // Update dash cooldown
     if (dashCooldown > 0) {
       updatePlayerStats({ dashCooldown: Math.max(0, dashCooldown - delta * 60) })
+    }
+
+    // Update block cooldown
+    if (blockCooldown > 0) {
+      updatePlayerStats({ blockCooldown: Math.max(0, blockCooldown - delta * 60) })
+    }
+
+    // Handle block input
+    if (input.block && blockCooldown === 0 && !isBlocking && !isDashing) {
+      // Start block
+      setBlockTimer(BLOCK_DURATION)
+      setIsParryWindow(true)
+      updatePlayerStats({ isBlocking: true })
+
+      // Parry window expires after PARRY_WINDOW duration
+      setTimeout(() => setIsParryWindow(false), PARRY_WINDOW * 1000)
+    }
+
+    // Handle block duration
+    if (isBlocking && blockTimer > 0) {
+      setBlockTimer(blockTimer - delta)
+    } else if (isBlocking && blockTimer <= 0) {
+      // End block
+      updatePlayerStats({
+        isBlocking: false,
+        blockCooldown: blockCooldownMax
+      })
+      setIsParryWindow(false)
     }
 
     // Handle dash input
@@ -164,6 +201,53 @@ function Player() {
 
   return (
     <group ref={groupRef} position={[0, 0, 0]}>
+      {/* Block Shield Effect */}
+      {isBlocking && (
+        <group>
+          {/* Main shield - hexagonal shape */}
+          <mesh position={[0, 1.2, 0.8]} rotation={[0, 0, 0]}>
+            <circleGeometry args={[1.2, 6]} />
+            <meshBasicMaterial
+              color={isParryWindow ? "#ffff00" : "#00ffff"}
+              transparent
+              opacity={isParryWindow ? 0.8 : 0.5}
+              side={2}
+            />
+          </mesh>
+          {/* Shield outline */}
+          <mesh position={[0, 1.2, 0.8]} rotation={[0, 0, 0]}>
+            <ringGeometry args={[1.15, 1.3, 6]} />
+            <meshBasicMaterial
+              color={isParryWindow ? "#ffaa00" : "#0066ff"}
+              transparent
+              opacity={0.9}
+            />
+          </mesh>
+          {/* Energy field effect */}
+          <mesh position={[0, 1.2, 0.75]}>
+            <circleGeometry args={[0.8, 6]} />
+            <meshBasicMaterial
+              color={isParryWindow ? "#ffffff" : "#00ffff"}
+              transparent
+              opacity={0.3}
+            />
+          </mesh>
+          {/* Parry window indicator - pulsing center */}
+          {isParryWindow && (
+            <mesh position={[0, 1.2, 0.85]}>
+              <circleGeometry args={[0.3, 16]} />
+              <meshBasicMaterial
+                color="#ffffff"
+                transparent
+                opacity={0.9}
+                emissive="#ffff00"
+                emissiveIntensity={2}
+              />
+            </mesh>
+          )}
+        </group>
+      )}
+
       {/* Dash Trail Effect */}
       {isDashing && (
         <group>
