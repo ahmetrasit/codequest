@@ -47,6 +47,15 @@ const useGameStore = create(
         isDodging: false,
         isBlocking: false,
 
+        // Dash state
+        isDashing: false,
+        dashCooldown: 0,
+        dashCooldownMax: 10,
+
+        // Block state
+        blockCooldown: 0,
+        blockCooldownMax: 10,
+
         // Inventory
         gold: 0,
         inventory: [],
@@ -277,6 +286,11 @@ const useGameStore = create(
           isAttacking: false,
           isDodging: false,
           isBlocking: false,
+          isDashing: false,
+          dashCooldown: 0,
+          dashCooldownMax: 10,
+          blockCooldown: 0,
+          blockCooldownMax: 10,
           gold: 0,
           inventory: [],
           equippedWeapon: null,

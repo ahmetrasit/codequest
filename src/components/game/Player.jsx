@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react'
+import React, { useRef, useEffect, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
 import useGameStore from '../../systems/gameStore'
 import { getInputSystem, destroyInputSystem } from '../../systems/InputSystem'
@@ -11,10 +11,20 @@ function Player() {
   const groupRef = useRef()
   const inputSystemRef = useRef(null)
   const playerPosition = useGameStore((state) => state.player.position)
+  const isDashing = useGameStore((state) => state.player.isDashing)
+  const dashCooldown = useGameStore((state) => state.player.dashCooldown)
+  const dashCooldownMax = useGameStore((state) => state.player.dashCooldownMax)
   const updatePlayerPosition = useGameStore((state) => state.updatePlayerPosition)
+  const updatePlayerStats = useGameStore((state) => state.updatePlayerStats)
+
+  // Local state for dash timing
+  const [dashTimer, setDashTimer] = useState(0)
+  const [dashDirection, setDashDirection] = useState({ x: 0, z: 1 })
 
   // Movement speed (units per second)
   const MOVEMENT_SPEED = 5
+  const DASH_SPEED = 25
+  const DASH_DURATION = 0.3
 
   // Bright blue color for robotic aesthetic
   const primaryColor = '#0066ff'
@@ -52,33 +62,94 @@ function Player() {
     // Get current input state
     const input = inputSystemRef.current.getInputState()
 
-    // Calculate movement direction based on input
-    let dirX = 0
-    let dirZ = 0
+    // Update dash cooldown
+    if (dashCooldown > 0) {
+      updatePlayerStats({ dashCooldown: Math.max(0, dashCooldown - delta * 60) })
+    }
 
-    if (input.forward) dirZ += 1  // Fixed: forward is positive Z
-    if (input.backward) dirZ -= 1  // Fixed: backward is negative Z
-    if (input.left) dirX -= 1
-    if (input.right) dirX += 1
+    // Handle dash input
+    if (input.dash && dashCooldown === 0 && !isDashing) {
+      // Start dash
+      // Calculate dash direction based on current movement or facing direction
+      let dirX = 0
+      let dirZ = 0
 
-    // Normalize diagonal movement to prevent faster diagonal speed
-    const magnitude = Math.sqrt(dirX * dirX + dirZ * dirZ)
-    if (magnitude > 0) {
-      // Rotate player to face movement direction (before normalizing)
-      if (groupRef.current) {
-        const targetRotation = Math.atan2(dirX, dirZ)
-        groupRef.current.rotation.y = targetRotation
+      if (input.forward) dirZ += 1
+      if (input.backward) dirZ -= 1
+      if (input.left) dirX -= 1
+      if (input.right) dirX += 1
+
+      // If no movement input, dash in facing direction
+      if (dirX === 0 && dirZ === 0) {
+        const currentRotation = groupRef.current?.rotation.y || 0
+        dirX = Math.sin(currentRotation)
+        dirZ = Math.cos(currentRotation)
       }
 
-      // Calculate movement delta
-      const moveX = (dirX / magnitude) * MOVEMENT_SPEED * delta
-      const moveZ = (dirZ / magnitude) * MOVEMENT_SPEED * delta
+      const magnitude = Math.sqrt(dirX * dirX + dirZ * dirZ)
+      if (magnitude > 0) {
+        setDashDirection({ x: dirX / magnitude, z: dirZ / magnitude })
+        setDashTimer(DASH_DURATION)
+        updatePlayerStats({ isDashing: true })
+      }
+    }
 
-      // Update player position in store
+    // Handle dash movement
+    if (isDashing && dashTimer > 0) {
+      setDashTimer(dashTimer - delta)
+
+      // Apply dash movement
+      const moveX = dashDirection.x * DASH_SPEED * delta
+      const moveZ = dashDirection.z * DASH_SPEED * delta
+
       updatePlayerPosition({
         x: playerPosition.x + moveX,
         z: playerPosition.z + moveZ
       })
+
+      // Rotate player to face dash direction
+      if (groupRef.current) {
+        const targetRotation = Math.atan2(dashDirection.x, dashDirection.z)
+        groupRef.current.rotation.y = targetRotation
+      }
+    } else if (isDashing && dashTimer <= 0) {
+      // End dash
+      updatePlayerStats({
+        isDashing: false,
+        dashCooldown: dashCooldownMax
+      })
+    }
+
+    // Normal movement (when not dashing)
+    if (!isDashing) {
+      // Calculate movement direction based on input
+      let dirX = 0
+      let dirZ = 0
+
+      if (input.forward) dirZ += 1
+      if (input.backward) dirZ -= 1
+      if (input.left) dirX -= 1
+      if (input.right) dirX += 1
+
+      // Normalize diagonal movement to prevent faster diagonal speed
+      const magnitude = Math.sqrt(dirX * dirX + dirZ * dirZ)
+      if (magnitude > 0) {
+        // Rotate player to face movement direction
+        if (groupRef.current) {
+          const targetRotation = Math.atan2(dirX, dirZ)
+          groupRef.current.rotation.y = targetRotation
+        }
+
+        // Calculate movement delta
+        const moveX = (dirX / magnitude) * MOVEMENT_SPEED * delta
+        const moveZ = (dirZ / magnitude) * MOVEMENT_SPEED * delta
+
+        // Update player position in store
+        updatePlayerPosition({
+          x: playerPosition.x + moveX,
+          z: playerPosition.z + moveZ
+        })
+      }
     }
 
     // Update visual position from store
@@ -93,6 +164,35 @@ function Player() {
 
   return (
     <group ref={groupRef} position={[0, 0, 0]}>
+      {/* Dash Trail Effect */}
+      {isDashing && (
+        <group>
+          {/* Outer glow ring */}
+          <mesh position={[0, 0.5, 0]} rotation={[Math.PI / 2, 0, 0]}>
+            <ringGeometry args={[1.2, 1.5, 32]} />
+            <meshBasicMaterial color="#00ffff" transparent opacity={0.6} />
+          </mesh>
+          {/* Inner glow */}
+          <mesh position={[0, 0.5, 0]} rotation={[Math.PI / 2, 0, 0]}>
+            <ringGeometry args={[0.8, 1.2, 32]} />
+            <meshBasicMaterial color="#0066ff" transparent opacity={0.4} />
+          </mesh>
+          {/* Speed lines */}
+          <mesh position={[0, 1, -0.5]}>
+            <boxGeometry args={[0.1, 0.1, 2]} />
+            <meshBasicMaterial color="#00ffff" transparent opacity={0.5} />
+          </mesh>
+          <mesh position={[-0.3, 1.2, -0.5]}>
+            <boxGeometry args={[0.08, 0.08, 1.8]} />
+            <meshBasicMaterial color="#00ffff" transparent opacity={0.4} />
+          </mesh>
+          <mesh position={[0.3, 0.8, -0.5]}>
+            <boxGeometry args={[0.08, 0.08, 1.8]} />
+            <meshBasicMaterial color="#00ffff" transparent opacity={0.4} />
+          </mesh>
+        </group>
+      )}
+
       {/* Main Body (Chassis) */}
       <mesh position={[0, 1.2, 0]} castShadow>
         <boxGeometry args={[0.8, 1, 0.6]} />

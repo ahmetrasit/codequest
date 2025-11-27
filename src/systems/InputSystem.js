@@ -11,6 +11,14 @@ class InputSystem {
       a: false, // Left
       s: false, // Back
       d: false, // Right
+      ' ': false, // Space - Dash
+      q: false, // Block
+    }
+
+    // Track action key presses (for single-press actions)
+    this.actionPressed = {
+      dash: false,
+      block: false,
     }
 
     // Bind event handlers to maintain proper context
@@ -35,6 +43,11 @@ class InputSystem {
   handleKeyDown(event) {
     const key = event.key.toLowerCase()
     if (key in this.keys) {
+      // Only trigger action pressed once per key press
+      if (!this.keys[key]) {
+        if (key === ' ') this.actionPressed.dash = true
+        if (key === 'q') this.actionPressed.block = true
+      }
       this.keys[key] = true
       event.preventDefault() // Prevent default browser behavior
     }
@@ -56,12 +69,21 @@ class InputSystem {
    * @returns {Object} Current state of all tracked keys
    */
   getInputState() {
-    return {
+    // Get current state
+    const state = {
       forward: this.keys.w,
       left: this.keys.a,
       backward: this.keys.s,
       right: this.keys.d,
+      dash: this.actionPressed.dash,
+      block: this.actionPressed.block,
     }
+
+    // Reset action pressed flags (they should only trigger once)
+    this.actionPressed.dash = false
+    this.actionPressed.block = false
+
+    return state
   }
 
   /**
