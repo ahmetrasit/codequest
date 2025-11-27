@@ -11,6 +11,7 @@ function Player() {
   const groupRef = useRef()
   const inputSystemRef = useRef(null)
   const playerPosition = useGameStore((state) => state.player.position)
+  const playerRotation = useGameStore((state) => state.player.rotation)
   const isDashing = useGameStore((state) => state.player.isDashing)
   const dashCooldown = useGameStore((state) => state.player.dashCooldown)
   const dashCooldownMax = useGameStore((state) => state.player.dashCooldownMax)
@@ -148,6 +149,8 @@ function Player() {
       if (groupRef.current) {
         const targetRotation = Math.atan2(dashDirection.x, dashDirection.z)
         groupRef.current.rotation.y = targetRotation
+        // Update rotation in store for camera
+        updatePlayerStats({ rotation: { ...playerRotation, y: targetRotation } })
       }
     } else if (isDashing && dashTimer <= 0) {
       // End dash
@@ -175,6 +178,8 @@ function Player() {
         if (groupRef.current) {
           const targetRotation = Math.atan2(dirX, dirZ)
           groupRef.current.rotation.y = targetRotation
+          // Update rotation in store for camera
+          updatePlayerStats({ rotation: { ...playerRotation, y: targetRotation } })
         }
 
         // Calculate movement delta

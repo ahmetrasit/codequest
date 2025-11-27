@@ -1,7 +1,7 @@
 /**
  * Input System
- * Manages keyboard input for player controls
- * Tracks WASD keys for movement and cleans up event listeners properly
+ * Manages keyboard and mouse input for player controls
+ * Tracks WASD keys for movement, Space for dash, right-click for block
  */
 class InputSystem {
   constructor() {
@@ -12,7 +12,6 @@ class InputSystem {
       s: false, // Back
       d: false, // Right
       ' ': false, // Space - Dash
-      q: false, // Block
     }
 
     // Track action key presses (for single-press actions)
@@ -24,8 +23,9 @@ class InputSystem {
     // Bind event handlers to maintain proper context
     this.handleKeyDown = this.handleKeyDown.bind(this)
     this.handleKeyUp = this.handleKeyUp.bind(this)
+    this.handleContextMenu = this.handleContextMenu.bind(this)
 
-    // Start listening for keyboard events
+    // Start listening for keyboard and mouse events
     this.init()
   }
 
@@ -35,6 +35,7 @@ class InputSystem {
   init() {
     window.addEventListener('keydown', this.handleKeyDown)
     window.addEventListener('keyup', this.handleKeyUp)
+    window.addEventListener('contextmenu', this.handleContextMenu)
   }
 
   /**
@@ -46,11 +47,18 @@ class InputSystem {
       // Only trigger action pressed once per key press
       if (!this.keys[key]) {
         if (key === ' ') this.actionPressed.dash = true
-        if (key === 'q') this.actionPressed.block = true
       }
       this.keys[key] = true
       event.preventDefault() // Prevent default browser behavior
     }
+  }
+
+  /**
+   * Handle right-click for block
+   */
+  handleContextMenu(event) {
+    event.preventDefault() // Prevent context menu from appearing
+    this.actionPressed.block = true
   }
 
   /**
@@ -92,6 +100,7 @@ class InputSystem {
   destroy() {
     window.removeEventListener('keydown', this.handleKeyDown)
     window.removeEventListener('keyup', this.handleKeyUp)
+    window.removeEventListener('contextmenu', this.handleContextMenu)
   }
 }
 
