@@ -23,6 +23,8 @@ function Player() {
 
   // Local state for dash timing
   const [dashTimer, setDashTimer] = useState(0)
+  const [dashDirection, setDashDirection] = useState({ x: 0, z: 1 })
+  const [isBackstep, setIsBackstep] = useState(false)
 
   // Local state for block timing
   const [blockTimer, setBlockTimer] = useState(0)
@@ -33,8 +35,10 @@ function Player() {
 
   // Movement speed (units per second)
   const MOVEMENT_SPEED = 5
-  const DASH_SPEED_MULTIPLIER = 3.5 // Speed multiplier during dash
+  const DASH_SPEED = 25 // Forward dash speed
+  const BACKSTEP_SPEED = 15 // Backstep speed (slower than dash)
   const DASH_DURATION = 0.3
+  const BACKSTEP_DURATION = 0.2
   const BLOCK_DURATION = 0.5
   const PARRY_WINDOW = 0.2
 
@@ -109,14 +113,34 @@ function Player() {
 
     // Handle dash input
     if (input.dash && dashCooldown === 0 && !isDashing) {
-      // Start dash - activates speed boost
-      setDashTimer(DASH_DURATION)
+      // Determine if this is a backstep or forward dash
+      const isBackward = input.backward
+      setIsBackstep(isBackward)
+
+      // Calculate dash direction based on current facing rotation
+      const facingRotation = currentRotation
+      const dashMultiplier = isBackward ? -1 : 1 // Negative for backstep
+      const dirX = Math.sin(facingRotation) * dashMultiplier
+      const dirZ = Math.cos(facingRotation) * dashMultiplier
+
+      setDashDirection({ x: dirX, z: dirZ })
+      setDashTimer(isBackward ? BACKSTEP_DURATION : DASH_DURATION)
       updatePlayerStats({ isDashing: true })
     }
 
-    // Handle dash timer
+    // Handle dash movement
     if (isDashing && dashTimer > 0) {
       setDashTimer(dashTimer - delta)
+
+      // Apply dash movement (locked direction)
+      const speed = isBackstep ? BACKSTEP_SPEED : DASH_SPEED
+      const moveX = dashDirection.x * speed * delta
+      const moveZ = dashDirection.z * speed * delta
+
+      updatePlayerPosition({
+        x: playerPosition.x + moveX,
+        z: playerPosition.z + moveZ
+      })
     } else if (isDashing && dashTimer <= 0) {
       // End dash
       updatePlayerStats({
@@ -125,47 +149,48 @@ function Player() {
       })
     }
 
-    // Handle rotation with A/D keys
-    const ROTATION_SPEED = 3 // radians per second
+    // Normal movement (when not dashing)
+    if (!isDashing) {
+      // Handle rotation with A/D keys
+      const ROTATION_SPEED = 3 // radians per second
 
-    if (input.left) {
-      // Rotate left (counter-clockwise)
-      const newRotation = currentRotation + ROTATION_SPEED * delta
-      setCurrentRotation(newRotation)
-      if (groupRef.current) {
-        groupRef.current.rotation.y = newRotation
-        updatePlayerStats({ rotation: { ...playerRotation, y: newRotation } })
+      if (input.left) {
+        // Rotate left (counter-clockwise)
+        const newRotation = currentRotation + ROTATION_SPEED * delta
+        setCurrentRotation(newRotation)
+        if (groupRef.current) {
+          groupRef.current.rotation.y = newRotation
+          updatePlayerStats({ rotation: { ...playerRotation, y: newRotation } })
+        }
       }
-    }
 
-    if (input.right) {
-      // Rotate right (clockwise)
-      const newRotation = currentRotation - ROTATION_SPEED * delta
-      setCurrentRotation(newRotation)
-      if (groupRef.current) {
-        groupRef.current.rotation.y = newRotation
-        updatePlayerStats({ rotation: { ...playerRotation, y: newRotation } })
+      if (input.right) {
+        // Rotate right (clockwise)
+        const newRotation = currentRotation - ROTATION_SPEED * delta
+        setCurrentRotation(newRotation)
+        if (groupRef.current) {
+          groupRef.current.rotation.y = newRotation
+          updatePlayerStats({ rotation: { ...playerRotation, y: newRotation } })
+        }
       }
-    }
 
-    // Handle forward/backward movement with W/S keys
-    let moveAmount = 0
+      // Handle forward/backward movement with W/S keys
+      let moveAmount = 0
 
-    if (input.forward) moveAmount = 1
-    if (input.backward) moveAmount = -1
+      if (input.forward) moveAmount = 1
+      if (input.backward) moveAmount = -1
 
-    if (moveAmount !== 0) {
-      // Move in the direction the player is facing
-      // Apply speed boost if dashing
-      const currentSpeed = isDashing ? MOVEMENT_SPEED * DASH_SPEED_MULTIPLIER : MOVEMENT_SPEED
-      const facingRotation = currentRotation
-      const moveX = Math.sin(facingRotation) * moveAmount * currentSpeed * delta
-      const moveZ = Math.cos(facingRotation) * moveAmount * currentSpeed * delta
+      if (moveAmount !== 0) {
+        // Move in the direction the player is facing
+        const facingRotation = currentRotation
+        const moveX = Math.sin(facingRotation) * moveAmount * MOVEMENT_SPEED * delta
+        const moveZ = Math.cos(facingRotation) * moveAmount * MOVEMENT_SPEED * delta
 
-      updatePlayerPosition({
-        x: playerPosition.x + moveX,
-        z: playerPosition.z + moveZ
-      })
+        updatePlayerPosition({
+          x: playerPosition.x + moveX,
+          z: playerPosition.z + moveZ
+        })
+      }
     }
 
     // Update visual position from store
