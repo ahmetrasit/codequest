@@ -168,14 +168,14 @@ function HUD() {
                 maxCooldown={player.dashCooldownMax}
                 label="Dash"
                 isActive={player.isDashing}
-                keyLabel="SPACE"
+                keyLabel="E"
               />
               <CooldownIndicator
                 cooldown={player.blockCooldown}
                 maxCooldown={player.blockCooldownMax}
                 label="Block"
                 isActive={player.isBlocking}
-                keyLabel="Q"
+                keyLabel="R-CLICK"
               />
             </div>
           </div>

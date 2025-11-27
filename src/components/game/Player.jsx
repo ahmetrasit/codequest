@@ -29,6 +29,9 @@ function Player() {
   const [blockTimer, setBlockTimer] = useState(0)
   const [isParryWindow, setIsParryWindow] = useState(false)
 
+  // Local state for smooth rotation
+  const [currentRotation, setCurrentRotation] = useState(0)
+
   // Movement speed (units per second)
   const MOVEMENT_SPEED = 5
   const DASH_SPEED = 25
@@ -145,10 +148,11 @@ function Player() {
         z: playerPosition.z + moveZ
       })
 
-      // Rotate player to face dash direction
+      // Rotate player to face dash direction (instant for dash)
       if (groupRef.current) {
         const targetRotation = Math.atan2(dashDirection.x, dashDirection.z)
         groupRef.current.rotation.y = targetRotation
+        setCurrentRotation(targetRotation) // Update rotation state
         // Update rotation in store for camera
         updatePlayerStats({ rotation: { ...playerRotation, y: targetRotation } })
       }
@@ -174,12 +178,24 @@ function Player() {
       // Normalize diagonal movement to prevent faster diagonal speed
       const magnitude = Math.sqrt(dirX * dirX + dirZ * dirZ)
       if (magnitude > 0) {
-        // Rotate player to face movement direction
+        // Calculate target rotation
+        const targetRotation = Math.atan2(dirX, dirZ)
+
+        // Smooth rotation interpolation
+        let rotDiff = targetRotation - currentRotation
+        // Normalize angle difference to -PI to PI
+        while (rotDiff > Math.PI) rotDiff -= Math.PI * 2
+        while (rotDiff < -Math.PI) rotDiff += Math.PI * 2
+
+        // Lerp rotation (0.2 = smoothing factor, higher = faster rotation)
+        const newRotation = currentRotation + rotDiff * 0.2
+        setCurrentRotation(newRotation)
+
+        // Apply rotation to player
         if (groupRef.current) {
-          const targetRotation = Math.atan2(dirX, dirZ)
-          groupRef.current.rotation.y = targetRotation
+          groupRef.current.rotation.y = newRotation
           // Update rotation in store for camera
-          updatePlayerStats({ rotation: { ...playerRotation, y: targetRotation } })
+          updatePlayerStats({ rotation: { ...playerRotation, y: newRotation } })
         }
 
         // Calculate movement delta

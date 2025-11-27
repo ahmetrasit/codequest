@@ -11,7 +11,7 @@ class InputSystem {
       a: false, // Left
       s: false, // Back
       d: false, // Right
-      ' ': false, // Space - Dash
+      e: false, // E - Dash
     }
 
     // Track action key presses (for single-press actions)
@@ -46,7 +46,7 @@ class InputSystem {
     if (key in this.keys) {
       // Only trigger action pressed once per key press
       if (!this.keys[key]) {
-        if (key === ' ') this.actionPressed.dash = true
+        if (key === 'e') this.actionPressed.dash = true
       }
       this.keys[key] = true
       event.preventDefault() // Prevent default browser behavior
