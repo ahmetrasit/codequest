@@ -258,8 +258,11 @@ function Player() {
 
     // ==================== ANIMATIONS ====================
 
-    // Check if player is moving
-    const moving = (input.forward || input.backward) && !isDashing
+    // Check if player is moving or rotating
+    const isMovingForward = input.forward && !isDashing
+    const isMovingBackward = input.backward && !isDashing
+    const isRotating = (input.left || input.right) && !isDashing
+    const moving = (isMovingForward || isMovingBackward || isRotating) && !isDashing
     setIsMoving(moving)
 
     // Update animation time
@@ -267,8 +270,8 @@ function Player() {
       setAnimationTime(animationTime + delta * 8) // Animation speed multiplier
     }
 
-    // Walking animation
-    if (moving && isGrounded && !isBlocking) {
+    // Forward walking animation
+    if (isMovingForward && isGrounded && !isBlocking) {
       const walkCycle = Math.sin(animationTime)
       const walkCycle2 = Math.sin(animationTime + Math.PI) // Opposite phase
 
@@ -307,6 +310,77 @@ function Player() {
       // Slight body bob
       if (bodyRef.current) {
         bodyRef.current.position.y = 1.2 + Math.abs(walkCycle) * 0.05
+      }
+    }
+
+    // Backward walking animation (different from forward)
+    if (isMovingBackward && !isMovingForward && isGrounded && !isBlocking) {
+      const walkCycle = Math.sin(animationTime)
+      const walkCycle2 = Math.sin(animationTime + Math.PI) // Opposite phase
+
+      // Arms swing opposite to forward walk
+      if (leftArmUpperRef.current) {
+        leftArmUpperRef.current.rotation.x = walkCycle2 * 0.3 // Reduced swing
+      }
+      if (rightArmUpperRef.current) {
+        rightArmUpperRef.current.rotation.x = walkCycle * 0.3
+      }
+
+      // Arm swing - lower (less movement)
+      if (leftArmLowerRef.current) {
+        leftArmLowerRef.current.rotation.x = walkCycle2 * 0.2
+      }
+      if (rightArmLowerRef.current) {
+        rightArmLowerRef.current.rotation.x = walkCycle * 0.2
+      }
+
+      // Legs move backward (reversed pattern)
+      if (leftLegUpperRef.current) {
+        leftLegUpperRef.current.rotation.x = walkCycle * 0.3 // Reduced range
+      }
+      if (rightLegUpperRef.current) {
+        rightLegUpperRef.current.rotation.x = walkCycle2 * 0.3
+      }
+
+      // Knees bend less when walking backward
+      if (leftLegLowerRef.current) {
+        leftLegLowerRef.current.rotation.x = Math.max(0, walkCycle * 0.3)
+      }
+      if (rightLegLowerRef.current) {
+        rightLegLowerRef.current.rotation.x = Math.max(0, walkCycle2 * 0.3)
+      }
+
+      // Lean back slightly when walking backward
+      if (bodyRef.current) {
+        bodyRef.current.rotation.x = -0.05
+        bodyRef.current.position.y = 1.2 + Math.abs(walkCycle) * 0.03
+      }
+    }
+
+    // Rotation animation (when turning without moving forward/backward)
+    if (isRotating && !isMovingForward && !isMovingBackward && isGrounded && !isBlocking) {
+      const walkCycle = Math.sin(animationTime)
+      const walkCycle2 = Math.sin(animationTime + Math.PI)
+
+      // Subtle arm movement
+      if (leftArmUpperRef.current) {
+        leftArmUpperRef.current.rotation.x = walkCycle * 0.2
+      }
+      if (rightArmUpperRef.current) {
+        rightArmUpperRef.current.rotation.x = walkCycle2 * 0.2
+      }
+
+      // Minimal leg movement (shifting weight)
+      if (leftLegUpperRef.current) {
+        leftLegUpperRef.current.rotation.x = walkCycle2 * 0.15
+      }
+      if (rightLegUpperRef.current) {
+        rightLegUpperRef.current.rotation.x = walkCycle * 0.15
+      }
+
+      // Very slight bob
+      if (bodyRef.current) {
+        bodyRef.current.position.y = 1.2 + Math.abs(walkCycle) * 0.02
       }
     }
 
