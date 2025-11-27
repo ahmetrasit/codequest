@@ -56,8 +56,8 @@ function Player() {
     let dirX = 0
     let dirZ = 0
 
-    if (input.forward) dirZ -= 1
-    if (input.backward) dirZ += 1
+    if (input.forward) dirZ += 1  // Fixed: forward is positive Z
+    if (input.backward) dirZ -= 1  // Fixed: backward is negative Z
     if (input.left) dirX -= 1
     if (input.right) dirX += 1
 
